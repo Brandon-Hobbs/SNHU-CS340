@@ -1,0 +1,17 @@
+/usr/local/bin/mongod_ctl start-noauth
+/usr/local/bin/mongod_ctl stop
+
+port 41439
+
+mongoimport --db AAC --collection animals --port 41439 --headerline --type csv ./aac_shelter_outcomes.csv
+
+db.createUser({user: "myUserAdmin",pwd: "aPassword",roles: [{role: "userAdminAnyDatabase", db: "admin"}, "readWriteAnyDatabase"]})
+db.createUser({user: "aacUser", pwd: "abc123", roles:[{role: "readWrite", db: "AAC"}]})
+
+
+mongo --authenticationDatabase "admin" -u "myUserAdmin" -p "aPassword"
+mongo --authenticationDatabase "AAC" -u "aacUser" -p "abc123"
+
+sudo /bin/cp /etc/mongod_noauth.conf /etc/mongod.conf
+sudo /bin/systemctl restart mongod.service
+
